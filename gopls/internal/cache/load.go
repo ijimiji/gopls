@@ -94,11 +94,8 @@ func (s *Snapshot) load(ctx context.Context, allowNetwork bool, scopes ...loadSc
 
 		case moduleLoadScope:
 			if _, err := arcadia.Root(); err == nil {
-				dirs := strings.Split(os.Getenv("YA_LSP_PREFETCH"), ",")
-				for _, dir := range dirs {
-					modQuery := fmt.Sprintf("%s%c...", dir, filepath.Separator)
-					query = append(query, modQuery)
-					moduleQueries[modQuery] = dir
+				for _, dir := range strings.Split(os.Getenv("YA_LSP_PREFETCH"), ",") {
+					query = append(query, fmt.Sprintf("%s%c...", dir, filepath.Separator))
 				}
 			} else {
 				modQuery := fmt.Sprintf("%s%c...", scope.dir, filepath.Separator)
