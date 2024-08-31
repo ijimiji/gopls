@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"golang.org/x/mod/module"
+	"golang.org/x/tools/arcadia"
 	"golang.org/x/tools/internal/event"
 	"golang.org/x/tools/internal/gocommand"
 	"golang.org/x/tools/internal/gopathwalk"
@@ -230,6 +231,9 @@ func newModuleResolver(e *ProcessEnv, moduleCacheCache *DirInfoCache) (*ModuleRe
 	}
 
 	r.scannedRoots = map[gopathwalk.Root]bool{}
+	if arcRoot, arcErr := arcadia.Root(); arcErr == nil {
+		r.scannedRoots[gopathwalk.Root{Path: arcRoot, Type: gopathwalk.RootCurrentModule}] = true
+	}
 	if r.moduleCacheCache == nil {
 		r.moduleCacheCache = NewDirInfoCache()
 	}
@@ -313,6 +317,9 @@ func (r *ModuleResolver) ClearForNewScan() Resolver {
 	//
 	// Scanning for new directories in GOMODCACHE should be handled elsewhere,
 	// via a call to ScanModuleCache.
+	if arcRoot, arcErr := arcadia.Root(); arcErr == nil {
+		r2.scannedRoots[gopathwalk.Root{Path: arcRoot, Type: gopathwalk.RootCurrentModule}] = true
+	}
 	for _, root := range r.roots {
 		if root.Type == gopathwalk.RootModuleCache && r.scannedRoots[root] {
 			r2.scannedRoots[root] = true

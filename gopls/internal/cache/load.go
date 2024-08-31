@@ -9,12 +9,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"sync/atomic"
 	"time"
 
+	"golang.org/x/tools/arcadia"
 	"golang.org/x/tools/go/packages"
 	"golang.org/x/tools/gopls/internal/cache/metadata"
 	"golang.org/x/tools/gopls/internal/file"
@@ -91,9 +93,18 @@ func (s *Snapshot) load(ctx context.Context, allowNetwork bool, scopes ...loadSc
 			}
 
 		case moduleLoadScope:
-			modQuery := fmt.Sprintf("%s%c...", scope.dir, filepath.Separator)
-			query = append(query, modQuery)
-			moduleQueries[modQuery] = scope.modulePath
+			if _, err := arcadia.Root(); err == nil {
+				dirs := strings.Split(os.Getenv("YA_LSP_PREFETCH"), ",")
+				for _, dir := range dirs {
+					modQuery := fmt.Sprintf("%s%c...", dir, filepath.Separator)
+					query = append(query, modQuery)
+					moduleQueries[modQuery] = dir
+				}
+			} else {
+				modQuery := fmt.Sprintf("%s%c...", scope.dir, filepath.Separator)
+				query = append(query, modQuery)
+				moduleQueries[modQuery] = scope.modulePath
+			}
 
 		case viewLoadScope:
 			// If we are outside of GOPATH, a module, or some other known
