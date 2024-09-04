@@ -9,7 +9,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -94,7 +93,7 @@ func (s *Snapshot) load(ctx context.Context, allowNetwork bool, scopes ...loadSc
 
 		case moduleLoadScope:
 			if _, err := arcadia.Root(); err == nil {
-				for _, dir := range strings.Split(os.Getenv("YA_LSP_PREFETCH"), ",") {
+				for _, dir := range s.Options().BuildOptions.PrefetchDirs {
 					query = append(query, fmt.Sprintf("%s%c...", dir, filepath.Separator))
 				}
 			} else {
