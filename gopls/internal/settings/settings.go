@@ -159,6 +159,8 @@ type BuildOptions struct {
 	//
 	// This setting is only supported when gopls is built with Go 1.16 or later.
 	StandaloneTags []string
+
+	PrefetchDirs []string
 }
 
 // Note: UIOptions must be comparable with reflect.DeepEqual.
@@ -876,6 +878,7 @@ func (o *Options) Clone() *Options {
 	result.BuildFlags = slices.Clone(o.BuildFlags)
 	result.DirectoryFilters = slices.Clone(o.DirectoryFilters)
 	result.StandaloneTags = slices.Clone(o.StandaloneTags)
+	result.PrefetchDirs = slices.Clone(o.PrefetchDirs)
 
 	return result
 }
@@ -942,6 +945,9 @@ func (o *Options) set(name string, value any, seen map[string]struct{}) error {
 
 	case "buildFlags":
 		return setStringSlice(&o.BuildFlags, value)
+
+	case "prefetchDirs":
+		return setStringSlice(&o.PrefetchDirs, value)
 
 	case "directoryFilters":
 		filterStrings, err := asStringSlice(value)
